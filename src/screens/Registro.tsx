@@ -81,9 +81,11 @@ export default function Registro() {
 
       <div className="relative w-full max-w-md py-8">
         <div className="mb-6 text-center">
-          <span className="inline-flex h-24 w-24 items-center justify-center rounded-3xl bg-white/95 p-3 shadow-lg">
-            <img src={logo} alt="Logo de Rentabilidad Agrícola" className="h-full w-auto" />
-          </span>
+          <img 
+          src={logo} 
+          alt="Logo Rentabilidad Agrícola" 
+          className="mx-auto h-20 w-auto drop-shadow-lg" 
+        />
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-white drop-shadow">Crear cuenta</h1>
           <p className="mt-1 text-sm font-medium text-white/70">{db.empresa.nombre}</p>
         </div>
