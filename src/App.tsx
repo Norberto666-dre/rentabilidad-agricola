@@ -1,37 +1,48 @@
+import { Suspense, lazy, type ReactNode } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import type { ReactNode } from "react";
 import { useApp } from "./context/AppContext";
 import { AppShell } from "./layout/AppShell";
 import type { Permiso, Rol } from "./types";
 
 import Login from "./screens/Login";
 import Registro from "./screens/Registro";
-import Tablero from "./screens/Tablero";
-import InicioCapturista from "./screens/InicioCapturista";
-import ListaCiclos from "./screens/ListaCiclos";
-import DetalleCiclo from "./screens/DetalleCiclo";
-import FormCiclo from "./screens/FormCiclo";
-import CerrarCiclo from "./screens/CerrarCiclo";
-import FormActividad from "./screens/FormActividad";
-import FormGasto from "./screens/FormGasto";
-import ListaGastos from "./screens/ListaGastos";
-import FormCosecha from "./screens/FormCosecha";
-import FormMerma from "./screens/FormMerma";
-import ListaVentas from "./screens/ListaVentas";
-import FormVenta from "./screens/FormVenta";
-import DetalleVenta from "./screens/DetalleVenta";
-import FormCobro from "./screens/FormCobro";
-import Alertas from "./screens/Alertas";
-import Predios from "./screens/Predios";
-import Clientes from "./screens/Clientes";
-import Proveedores from "./screens/Proveedores";
-import MisRegistros from "./screens/MisRegistros";
-import Perfil from "./screens/Perfil";
-import Mas from "./screens/Mas";
-import Ayuda from "./screens/Ayuda";
-import Planes from "./screens/Planes";
-import Empresa from "./screens/Empresa";
-import Finanzas from "./screens/Finanzas";
+
+/* Pantallas pesadas (recharts / listas grandes) se cargan bajo demanda */
+const Tablero = lazy(() => import("./screens/Tablero"));
+const InicioCapturista = lazy(() => import("./screens/InicioCapturista"));
+const ListaCiclos = lazy(() => import("./screens/ListaCiclos"));
+const DetalleCiclo = lazy(() => import("./screens/DetalleCiclo"));
+const FormCiclo = lazy(() => import("./screens/FormCiclo"));
+const CerrarCiclo = lazy(() => import("./screens/CerrarCiclo"));
+const FormActividad = lazy(() => import("./screens/FormActividad"));
+const FormGasto = lazy(() => import("./screens/FormGasto"));
+const ListaGastos = lazy(() => import("./screens/ListaGastos"));
+const FormCosecha = lazy(() => import("./screens/FormCosecha"));
+const FormMerma = lazy(() => import("./screens/FormMerma"));
+const ListaVentas = lazy(() => import("./screens/ListaVentas"));
+const FormVenta = lazy(() => import("./screens/FormVenta"));
+const DetalleVenta = lazy(() => import("./screens/DetalleVenta"));
+const FormCobro = lazy(() => import("./screens/FormCobro"));
+const Alertas = lazy(() => import("./screens/Alertas"));
+const Predios = lazy(() => import("./screens/Predios"));
+const Clientes = lazy(() => import("./screens/Clientes"));
+const Proveedores = lazy(() => import("./screens/Proveedores"));
+const MisRegistros = lazy(() => import("./screens/MisRegistros"));
+const Perfil = lazy(() => import("./screens/Perfil"));
+const Mas = lazy(() => import("./screens/Mas"));
+const Ayuda = lazy(() => import("./screens/Ayuda"));
+const Planes = lazy(() => import("./screens/Planes"));
+const Empresa = lazy(() => import("./screens/Empresa"));
+const Finanzas = lazy(() => import("./screens/Finanzas"));
+
+function Cargando() {
+  return (
+    <div className="flex min-h-[50vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-[3px] border-campo-200 border-t-campo-700" />
+      <span className="sr-only">Cargando…</span>
+    </div>
+  );
+}
 
 function Protegido({ children, roles, permiso }: { children: ReactNode; roles?: Rol[]; permiso?: Permiso }) {
   const { sesion, puede } = useApp();
@@ -50,45 +61,47 @@ function InicioPorRol() {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/registro" element={<Registro />} />
-      <Route path="/" element={<InicioPorRol />} />
-      <Route path="/acceso-denegado" element={<Protegido><Denegado /></Protegido>} />
+    <Suspense fallback={<Cargando />}>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/registro" element={<Registro />} />
+        <Route path="/" element={<InicioPorRol />} />
+        <Route path="/acceso-denegado" element={<Protegido><Denegado /></Protegido>} />
 
-      <Route path="/tablero" element={<Protegido roles={["ADMIN", "CONTADOR"]} permiso="tablero:ver"><Tablero /></Protegido>} />
-      <Route path="/inicio" element={<Protegido roles={["CAPTURISTA"]}><InicioCapturista /></Protegido>} />
+        <Route path="/tablero" element={<Protegido roles={["ADMIN", "CONTADOR"]} permiso="tablero:ver"><Tablero /></Protegido>} />
+        <Route path="/inicio" element={<Protegido roles={["CAPTURISTA"]}><InicioCapturista /></Protegido>} />
 
-      <Route path="/ciclos" element={<Protegido><ListaCiclos /></Protegido>} />
-      <Route path="/ciclos/nuevo" element={<Protegido permiso="ciclo:crear"><FormCiclo /></Protegido>} />
-      <Route path="/ciclos/:id" element={<Protegido><DetalleCiclo /></Protegido>} />
-      <Route path="/ciclos/:id/cerrar" element={<Protegido permiso="ciclo:cerrar"><CerrarCiclo /></Protegido>} />
+        <Route path="/ciclos" element={<Protegido><ListaCiclos /></Protegido>} />
+        <Route path="/ciclos/nuevo" element={<Protegido permiso="ciclo:crear"><FormCiclo /></Protegido>} />
+        <Route path="/ciclos/:id" element={<Protegido><DetalleCiclo /></Protegido>} />
+        <Route path="/ciclos/:id/cerrar" element={<Protegido permiso="ciclo:cerrar"><CerrarCiclo /></Protegido>} />
 
-      <Route path="/capturas/actividad" element={<Protegido permiso="actividad:crear"><FormActividad /></Protegido>} />
-      <Route path="/capturas/gasto" element={<Protegido permiso="gasto:crear"><FormGasto /></Protegido>} />
-      <Route path="/capturas/cosecha" element={<Protegido permiso="cosecha:crear"><FormCosecha /></Protegido>} />
-      <Route path="/capturas/merma" element={<Protegido permiso="merma:crear"><FormMerma /></Protegido>} />
+        <Route path="/capturas/actividad" element={<Protegido permiso="actividad:crear"><FormActividad /></Protegido>} />
+        <Route path="/capturas/gasto" element={<Protegido permiso="gasto:crear"><FormGasto /></Protegido>} />
+        <Route path="/capturas/cosecha" element={<Protegido permiso="cosecha:crear"><FormCosecha /></Protegido>} />
+        <Route path="/capturas/merma" element={<Protegido permiso="merma:crear"><FormMerma /></Protegido>} />
 
-      <Route path="/gastos" element={<Protegido><ListaGastos /></Protegido>} />
-      <Route path="/ventas" element={<Protegido roles={["ADMIN", "CONTADOR"]}><ListaVentas /></Protegido>} />
-      <Route path="/ventas/nueva" element={<Protegido permiso="venta:crear"><FormVenta /></Protegido>} />
-      <Route path="/ventas/:id" element={<Protegido roles={["ADMIN", "CONTADOR"]}><DetalleVenta /></Protegido>} />
-      <Route path="/cobros/nuevo" element={<Protegido permiso="cobro:crear"><FormCobro /></Protegido>} />
-      <Route path="/finanzas" element={<Protegido roles={["ADMIN", "CONTADOR"]}><Finanzas /></Protegido>} />
+        <Route path="/gastos" element={<Protegido><ListaGastos /></Protegido>} />
+        <Route path="/ventas" element={<Protegido roles={["ADMIN", "CONTADOR"]}><ListaVentas /></Protegido>} />
+        <Route path="/ventas/nueva" element={<Protegido permiso="venta:crear"><FormVenta /></Protegido>} />
+        <Route path="/ventas/:id" element={<Protegido roles={["ADMIN", "CONTADOR"]}><DetalleVenta /></Protegido>} />
+        <Route path="/cobros/nuevo" element={<Protegido permiso="cobro:crear"><FormCobro /></Protegido>} />
+        <Route path="/finanzas" element={<Protegido roles={["ADMIN", "CONTADOR"]}><Finanzas /></Protegido>} />
 
-      <Route path="/alertas" element={<Protegido roles={["ADMIN", "CONTADOR"]} permiso="reporte:ver"><Alertas /></Protegido>} />
-      <Route path="/predios" element={<Protegido><Predios /></Protegido>} />
-      <Route path="/clientes" element={<Protegido><Clientes /></Protegido>} />
-      <Route path="/proveedores" element={<Protegido><Proveedores /></Protegido>} />
-      <Route path="/registros" element={<Protegido roles={["CAPTURISTA"]}><MisRegistros /></Protegido>} />
-      <Route path="/perfil" element={<Protegido><Perfil /></Protegido>} />
-      <Route path="/mas" element={<Protegido><Mas /></Protegido>} />
-      <Route path="/mas/ayuda" element={<Protegido><Ayuda /></Protegido>} />
-      <Route path="/mas/planes" element={<Protegido><Planes /></Protegido>} />
-      <Route path="/mas/empresa" element={<Protegido permiso="empresa:administrar"><Empresa /></Protegido>} />
+        <Route path="/alertas" element={<Protegido roles={["ADMIN", "CONTADOR"]} permiso="reporte:ver"><Alertas /></Protegido>} />
+        <Route path="/predios" element={<Protegido><Predios /></Protegido>} />
+        <Route path="/clientes" element={<Protegido><Clientes /></Protegido>} />
+        <Route path="/proveedores" element={<Protegido><Proveedores /></Protegido>} />
+        <Route path="/registros" element={<Protegido roles={["CAPTURISTA"]}><MisRegistros /></Protegido>} />
+        <Route path="/perfil" element={<Protegido><Perfil /></Protegido>} />
+        <Route path="/mas" element={<Protegido><Mas /></Protegido>} />
+        <Route path="/mas/ayuda" element={<Protegido><Ayuda /></Protegido>} />
+        <Route path="/mas/planes" element={<Protegido><Planes /></Protegido>} />
+        <Route path="/mas/empresa" element={<Protegido permiso="empresa:administrar"><Empresa /></Protegido>} />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   );
 }
 
