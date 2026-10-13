@@ -11,7 +11,7 @@ export const COLECCIONES = {
   planes: {
     requeridos: ["id", "codigo", "nombre", "precioMensual", "maxParcelas", "maxUsuarios", "incluyeReportes", "activo"],
     campos: { id: "s", codigo: "s", nombre: "s", precioMensual: "n", maxParcelas: "n", maxUsuarios: "n", incluyeReportes: "b", activo: "b" },
-    enums: { codigo: ["BASICO", "PRODUCTOR", "PROFESIONAL"] },
+    enums: { codigo: ["BASICO", "PRODUCTOR", "EMPRESA"] },
     maxLen: { id: 40, codigo: 20, nombre: 60 },
     filtrables: ["codigo", "activo"],
     indices: [{ codigo: 1 }],
