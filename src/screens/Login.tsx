@@ -42,7 +42,12 @@ export default function Login() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-campo-950 via-campo-900 to-campo-700 p-4">
+    <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-campo-950 via-campo-900 to-campo-700 p-4 overflow-hidden">
+      
+      {/* Elementos de fondo con blur estilo luz/cristal */}
+      <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-campo-500/30 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-emerald-500/20 blur-3xl pointer-events-none" />
+
       <FondoCristal />
 
       <div className="relative w-full max-w-md">
