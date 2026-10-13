@@ -21,7 +21,7 @@ export default function Login() {
 
   if (sesion) return <Navigate to="/" replace />;
 
-  const enviar = (e: FormEvent) => {
+  const enviar = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
     if (!correo || !password) {
@@ -29,16 +29,13 @@ export default function Login() {
       return;
     }
     setEnviando(true);
-    window.setTimeout(() => {
-      const ok = iniciarSesion(correo, password);
-      setEnviando(false);
-      if (!ok) {
-        setError("Correo o contraseña incorrectos.");
-        return;
-      }
-      const u = db.usuarios.find((x) => x.correo.toLowerCase() === correo.trim().toLowerCase());
-      navegar(u?.rol === "CAPTURISTA" ? "/inicio" : "/tablero", { replace: true });
-    }, 350);
+    const r = await iniciarSesion(correo, password);
+    setEnviando(false);
+    if (!r.ok) {
+      setError("Correo o contraseña incorrectos.");
+      return;
+    }
+    navegar(r.rol === "CAPTURISTA" ? "/inicio" : "/tablero", { replace: true });
   };
 
   return (

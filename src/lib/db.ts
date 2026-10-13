@@ -40,6 +40,42 @@ export function guardarDB(db: DB): void {
   localStorage.setItem(KEY, JSON.stringify(db));
 }
 
+/* Guardado por debounce: serializa la BD solo cuando deja de haber cambios
+   (en vez de en cada mutación). withFlush=True fuerza la escritura pendiente. */
+let dbPendiente: DB | null = null;
+let timerGuardado: number | null = null;
+
+export function programarGuardado(db: DB, esperaMs = 500): void {
+  dbPendiente = db;
+  if (timerGuardado !== null) window.clearTimeout(timerGuardado);
+  timerGuardado = window.setTimeout(() => {
+    timerGuardado = null;
+    if (dbPendiente) {
+      try {
+        guardarDB(dbPendiente);
+      } catch {
+        /* modo privado: no se persiste */
+      }
+      dbPendiente = null;
+    }
+  }, esperaMs);
+}
+
+export function guardarPendienteAhora(): void {
+  if (timerGuardado !== null) {
+    window.clearTimeout(timerGuardado);
+    timerGuardado = null;
+  }
+  if (dbPendiente) {
+    try {
+      guardarDB(dbPendiente);
+    } catch {
+      /* modo privado */
+    }
+    dbPendiente = null;
+  }
+}
+
 export function reiniciarDB(): DB {
   const db = structuredClone(semilla) as DB;
   guardarDB(db);

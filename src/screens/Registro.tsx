@@ -1,8 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
-import { uid } from "../lib/format";
-import type { Rol } from "../types";
 import { BotonCristal, CampoCristal, FondoCristal, SelectorCristal, TarjetaCristal } from "../components/AuthCristal";
 import logo from "../assets/logo_agri.svg";
 
@@ -12,7 +10,7 @@ const ROLES = [
 ];
 
 export default function Registro() {
-  const { sesion, db, actualizar, notificar } = useApp();
+  const { sesion, db, registrarCuenta, notificar } = useApp();
   const navegar = useNavigate();
 
   const [nombre, setNombre] = useState("");
@@ -21,7 +19,7 @@ export default function Registro() {
   const [telefono, setTelefono] = useState("");
   const [password, setPassword] = useState("");
   const [confirmar, setConfirmar] = useState("");
-  const [rol, setRol] = useState<Rol>("CAPTURISTA");
+  const [rol, setRol] = useState<"CAPTURISTA" | "CONTADOR">("CAPTURISTA");
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [enviando, setEnviando] = useState(false);
 
@@ -44,7 +42,7 @@ export default function Registro() {
     return Object.keys(e).length === 0;
   };
 
-  const enviar = (e: FormEvent) => {
+  const enviar = async (e: FormEvent) => {
     e.preventDefault();
     if (espacio) {
       notificar("El plan actual no permite más usuarios. Habla con tu administrador.", "error");
@@ -52,25 +50,19 @@ export default function Registro() {
     }
     if (!validar()) return;
     setEnviando(true);
-    const id = uid("u");
-    actualizar((prev) => ({
-      ...prev,
-      usuarios: [
-        ...prev.usuarios,
-        {
-          id,
-          nombre: nombre.trim(),
-          apellido: apellido.trim(),
-          correo: correo.trim().toLowerCase(),
-          telefono: telefono.trim() || "—",
-          rol,
-          password,
-          activo: true,
-          creadoEn: new Date().toISOString().slice(0, 19),
-          ultimoAcceso: null,
-        },
-      ],
-    }));
+    const r = await registrarCuenta({
+      nombre: nombre.trim(),
+      apellido: apellido.trim(),
+      correo: correo.trim(),
+      password,
+      telefono: telefono.trim() || undefined,
+      rol,
+    });
+    setEnviando(false);
+    if (!r.ok) {
+      setErrores((prev) => ({ ...prev, correo: r.error ?? "No se pudo crear la cuenta." }));
+      return;
+    }
     notificar("Cuenta creada. Ya puedes iniciar sesión.");
     navegar("/login", { state: { correo: correo.trim().toLowerCase(), cuentaCreada: true } });
   };
@@ -137,7 +129,7 @@ export default function Registro() {
                     obligatorio
                   />
                 </div>
-                <SelectorCristal etiqueta="Rol" valor={rol} onChange={(v) => setRol(v as Rol)} opciones={ROLES} />
+                <SelectorCristal etiqueta="Rol" valor={rol} onChange={(v) => setRol(v as "CAPTURISTA" | "CONTADOR")} opciones={ROLES} />
                 <p className="rounded-xl border border-white/15 bg-black/15 px-3 py-2 text-xs text-white/75 backdrop-blur-sm">
                   Por seguridad, las cuentas de administrador solo las crea el administrador desde
                   su perfil. La licencia define cuántos usuarios caben en el plan.
